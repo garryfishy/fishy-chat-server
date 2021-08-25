@@ -27,7 +27,6 @@ app.post('/register', async (req,res)=> {
 	let result = await User.create(info)
 	try {
 		if(result){
-			console.log(result)
 			res.status(201).json({id: result.id, username: result.username})
 		}else{
 			res.status(500).json('Internal Server Error')
