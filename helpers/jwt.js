@@ -2,15 +2,15 @@ const jwt = require('jsonwebtoken')
 const {User, News} = require('../models')
 
   function sign(payload, secretcode){
-	// console.log(payload, secretcode)
 	return  jwt.sign({payload},secretcode)
 }
 
 async function authentication (req,res,next){
     const {access_token} = req.headers;
-	
+	// console.log(access_token)
 	try {
 		if(access_token){
+			// console.log('2')
 			const tokenUser = jwt.verify(access_token, process.env.secretcode)
 			// console.log(tokenUser, "<<<<ini access token coba")
 			let result = await User.findByPk(tokenUser.payload.id)
@@ -19,6 +19,7 @@ async function authentication (req,res,next){
 				req.user = {id : result.dataValues.id, username: result.dataValues.username}
 				if (result){
 					// console.log(result) 
+					console.log(req.user.id)
 					next();
 				}else{
 					// console.log('err')
