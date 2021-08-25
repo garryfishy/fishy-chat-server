@@ -2,10 +2,13 @@ const express = require('express')
 const app = express()
 const port = 3000
 const cors = require('cors')
-const {User, Translation} = require('./models/')
+const {User, Translation, VideoRoom} = require('./models/')
 const {hashPassword, checkPassword} = require('./helpers/bcrypt')
 const {sign, authentication} = require('./helpers/jwt')
-const e = require('express')
+const axios = require('axios')
+const upload = require('./middleware/multer')
+const image = require('./helpers/imagekit')
+
 require('dotenv').config()
 app.use(cors())
 app.use(express.urlencoded({extended:true}))
@@ -56,6 +59,45 @@ app.post('/login', async(req,res) => {
 		console.log(error)
 		res.status(500).json(error)
 	}
+})
+
+async function addVideo(req,res){
+	
+
+}
+
+app.post('/videoRoom', upload.single('image'),  async(req,res) => {
+	let result = await axios({
+		method: "POST",
+		url:"https://api.daily.co/v1/rooms",
+		headers: {'Content-Type': 'application/json','Authorization': 'Bearer b399e15938e6f866ff346a310d8ca685b00cb1225ee8c5933dd0b075b6cf6b25'}
+		})
+		try {
+			if (result){
+				let {
+					name,
+					description,
+				} = req.body
+				const imageName = await req.file.originalname
+				const buffer = req.file.buffer.toString('base64')
+				let imgUrl =await image(imageName, buffer)
+				let url = result.data.url
+				imgUrl = imgUrl.url
+				console.log(name,description,url,imgUrl)
+				console.log(name,description,url,imgUrl)
+				VideoRoom.create(name,description,url,imgUrl)
+				let video = await VideoRoom.create({name,description,url,imgUrl})
+				try {
+					if(video){
+						console.log(video)
+					}
+				} catch (error) {
+					console.log(error)
+				}
+			}
+		} catch (error) {
+			console.log(error)
+		}
 })
 
 app.use(authentication)
