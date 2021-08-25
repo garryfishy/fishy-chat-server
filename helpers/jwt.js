@@ -11,24 +11,23 @@ async function authentication (req,res,next){
 	
 	try {
 		if(access_token){
-			const tokenUser = jwt.verify(access_token, process.env.secretpassword)
+			const tokenUser = jwt.verify(access_token, process.env.secretcode)
 			// console.log(tokenUser, "<<<<ini access token coba")
-			let result = await User.findByPk(tokenUser.payload.payload)
+			let result = await User.findByPk(tokenUser.payload.id)
 			if(result){
-				req.user = {id : result.dataValues.id, role: result.dataValues.role}
+				// console.log(result)
+				req.user = {id : result.dataValues.id, username: result.dataValues.username}
 				if (result){
+					// console.log(result) 
 					next();
 				}else{
-					throw({
-						code: 401,
-						name: "invalidJWT"
-					})
+					// console.log('err')
+					res.status(500).json('Internal Server Error')
 				}
 			}	
 		}
 	} catch (error) {
-		// console.log(error)
-		next(error)
+		res.status(500).json('Internal Server Error')
 	}
 }
 
