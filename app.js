@@ -8,6 +8,7 @@ const {sign, authentication} = require('./helpers/jwt')
 const axios = require('axios')
 const upload = require('./middleware/multer')
 const image = require('./helpers/imagekit')
+const { sendMail } = require('./helpers/nodemailer')
 
 require('dotenv').config()
 app.use(cors())
@@ -100,6 +101,7 @@ app.post('/videoRoom', upload.single('image'),  async(req,res) => {
 				let video = await VideoRoom.create({name,description,url,imgUrl})
 				try {
 					if(video){
+						sendMail(video.dataValues.url)
 						res.status(201).json(video.dataValues)
 					}
 				} catch (error) {
